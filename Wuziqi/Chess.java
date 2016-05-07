@@ -7,7 +7,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 
 //this is the main class to init the Gobang
-public class Charles {
+public class Chess {
 	public static void main(String[] args) {
 		GameFrame game = new GameFrame();
 		game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
