@@ -47,22 +47,28 @@ class TetrisPanel extends JPanel implements KeyListener {
 	int[][] map = new int[13][23];
 
 	TetrisPanel() {
+		resetMap();
 		newblock();
-		newmap();
 		drawwall();
 		Timer timer = new Timer(1000, new TimerListener());
 		timer.start();
 	}
 
-	
+	public void resetMap() {
+		for (int i = 0; i < 12; i++) {
+			for (int j = 0; j < 22; j++) {
+				map[i][j] = 0;
+			}
+		}
+	}
+
 	public void newblock() {
 		blockType = (int) (Math.random() * 1000) % 7;
 		turnState = (int) (Math.random() * 1000) % 4;
 		x = 4;
 		y = 0;
 		if (gameover(x, y) == 1) {
-
-			newmap();
+			resetMap();
 			drawwall();
 			score = 0;
 			JOptionPane.showMessageDialog(null, "GAME OVER");
@@ -80,13 +86,28 @@ class TetrisPanel extends JPanel implements KeyListener {
 		}
 	}
 
-	// init map
-	public void newmap() {
-		for (i = 0; i < 12; i++) {
-			for (j = 0; j < 22; j++) {
-				map[i][j] = 0;
+	// draw blocks
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		for (j = 0; j < 16; j++) {
+			if (shapes[blockType][turnState][j] == 1) {
+				g.fillRect((j % 4 + x + 1) * 10, (j / 4 + y) * 10, 10, 10);
 			}
 		}
+		// draw guding block
+		for (j = 0; j < 22; j++) {
+			for (i = 0; i < 12; i++) {
+				if (map[i][j] == 1) {
+					g.fillRect(i * 10, j * 10, 10, 10);
+
+				}
+				if (map[i][j] == 2) {
+					g.drawRect(i * 10, j * 10, 10, 10);
+
+				}
+			}
+		}
+		g.drawString("score=" + score, 125, 10);
 	}
 
 	// block shape First group is block type s,z,l,j,i,o,t 7 types.second groupe is rotate times, third group is block juzhen
@@ -233,39 +254,6 @@ class TetrisPanel extends JPanel implements KeyListener {
 				j++;
 			}
 		}
-	}
-
-	// draw blocks
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		// draw block
-		for (j = 0; j < 16; j++) {
-			if (shapes[blockType][turnState][j] == 1) {
-				g.fillRect((j % 4 + x + 1) * 10, (j / 4 + y) * 10, 10, 10);
-			}
-		}
-		// draw guding block
-		for (j = 0; j < 22; j++) {
-			for (i = 0; i < 12; i++) {
-				if (map[i][j] == 1) {
-					g.fillRect(i * 10, j * 10, 10, 10);
-
-				}
-				if (map[i][j] == 2) {
-					g.drawRect(i * 10, j * 10, 10, 10);
-
-				}
-			}
-		}
-		g.drawString("score=" + score, 125, 10);
-		g.drawString("you are kiding?", 125, 50);
-		g.drawString("you are kiding?", 125, 70);
-		g.drawString("you are kiding?", 125, 90);
-		g.drawString("you are kiding?", 125, 110);
-		g.drawString("you are kiding?", 125, 130);
-		g.drawString("you are kiding?", 125, 150);
-		g.drawString("you are kiding?", 125, 170);
-		g.drawString("you are kiding?", 125, 190);
 	}
 
 	// listen to keyboard
