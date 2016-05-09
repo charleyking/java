@@ -43,13 +43,14 @@ class TetrisPanel extends JPanel implements KeyListener {
 	private int x;
 	private int y;
 	private int i, j, flag;
+	private boolean gameover;
 	// block already put down x=0-11,y=0-21;
 	int[][] map = new int[13][23];
 
 	TetrisPanel() {
 		resetMap();
-		newblock();
-		drawwall();
+		newFallingBlock();
+		initWall();
 		Timer timer = new Timer(1000, new TimerListener());
 		timer.start();
 	}
@@ -62,25 +63,25 @@ class TetrisPanel extends JPanel implements KeyListener {
 		}
 	}
 
-	public void newblock() {
+	public void newFallingBlock() {
 		blockType = (int) (Math.random() * 1000) % 7;
 		turnState = (int) (Math.random() * 1000) % 4;
 		x = 4;
 		y = 0;
 		if (gameover(x, y) == 1) {
 			resetMap();
-			drawwall();
+			initWall();
 			score = 0;
 			JOptionPane.showMessageDialog(null, "GAME OVER");
 		}
 	}
 
 	// draw weiqiang
-	public void drawwall() {
-		for (i = 0; i < 12; i++) {
-			map[i][21] = 2;
+	public void initWall() {
+		for (int i = 0; i < 12; i++) {
+			map[i][21] = 2;  // when map[][] = 2, there is a rect.
 		}
-		for (j = 0; j < 22; j++) {
+		for (int j = 0; j < 22; j++) {
 			map[11][j] = 2;
 			map[0][j] = 2;
 		}
@@ -90,28 +91,27 @@ class TetrisPanel extends JPanel implements KeyListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		for (j = 0; j < 16; j++) {
-			if (shapes[blockType][turnState][j] == 1) {
-				g.fillRect((j % 4 + x + 1) * 10, (j / 4 + y) * 10, 10, 10);
+			if (fallingBlock[blockType][turnState][j] == 1) {
+				g.fillRect((j % 4 + x + 1) * 20, (j / 4 + y) * 20, 20, 20);  // draw blocks still in the air, constituded with four squares.
 			}
 		}
 		// draw guding block
 		for (j = 0; j < 22; j++) {
 			for (i = 0; i < 12; i++) {
 				if (map[i][j] == 1) {
-					g.fillRect(i * 10, j * 10, 10, 10);
-
-				}
+					g.fillRect(i * 20, j * 20, 20, 20);
+				}  // draw blocks already put down, color black
+				g.setColor(Color.RED);
 				if (map[i][j] == 2) {
-					g.drawRect(i * 10, j * 10, 10, 10);
-
-				}
+					g.drawRect(i * 20, j * 20, 20, 20);
+				}  // draw the wall
 			}
 		}
 		g.drawString("score=" + score, 125, 10);
 	}
 
-	// block shape First group is block type s,z,l,j,i,o,t 7 types.second groupe is rotate times, third group is block juzhen
-	private final int shapes[][][] = new int[][][] {
+	// falling block, First group is block type s,z,l,j,i,o,t 7 types.second groupe is rotate times, third group is block juzhen
+	private final int fallingBlock[][][] = new int[][][] {
 	// i
 			{ { 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
 					{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 },
@@ -188,7 +188,7 @@ class TetrisPanel extends JPanel implements KeyListener {
 		;
 		if (blow(x, y + 1, blockType, turnState) == 0) {
 			add(x, y, blockType, turnState);
-			newblock();
+			newFallingBlock();
 			delline();
 		}
 		;
@@ -199,9 +199,9 @@ class TetrisPanel extends JPanel implements KeyListener {
 	public int blow(int x, int y, int blockType, int turnState) {
 		for (int a = 0; a < 4; a++) {
 			for (int b = 0; b < 4; b++) {
-				if (((shapes[blockType][turnState][a * 4 + b] == 1) && (map[x
+				if (((fallingBlock[blockType][turnState][a * 4 + b] == 1) && (map[x
 						+ b + 1][y + a] == 1))
-						|| ((shapes[blockType][turnState][a * 4 + b] == 1) && (map[x
+						|| ((fallingBlock[blockType][turnState][a * 4 + b] == 1) && (map[x
 								+ b + 1][y + a] == 2))) {
 
 					return 0;
@@ -248,7 +248,7 @@ class TetrisPanel extends JPanel implements KeyListener {
 		for (int a = 0; a < 4; a++) {
 			for (int b = 0; b < 4; b++) {
 				if (map[x + b + 1][y + a] == 0) {
-					map[x + b + 1][y + a] = shapes[blockType][turnState][j];
+					map[x + b + 1][y + a] = fallingBlock[blockType][turnState][j];
 				}
 				;
 				j++;
@@ -298,7 +298,7 @@ class TetrisPanel extends JPanel implements KeyListener {
 				if (flag == 1) {
 					add(x, y, blockType, turnState);
 					delline();
-					newblock();
+					newFallingBlock();
 					flag = 0;
 				}
 				flag = 1;
