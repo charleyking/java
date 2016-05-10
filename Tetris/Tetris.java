@@ -11,24 +11,34 @@ public class Tetris {
 
 class TetrisFrame extends JFrame {
 	public TetrisFrame() {
-		// init menuBar
-		JMenuBar menuBar = new JMenuBar();
-		JMenu option = new JMenu("game");
-		JMenu help = new JMenu("help");
-		JMenuItem newGame = option.add("new game");
-		JMenuItem pause = option.add("pause");
-		JMenuItem exit = option.add("exit");
-		JMenuItem about = help.add("about");
-		menuBar.add(option);
-		menuBar.add(help);
 		// init panel
 		TetrisPanel panel = new TetrisPanel();
 		panel.setBackground(new Color(182, 255, 147));
 		add(panel);
 		addKeyListener(panel);
+		// init menuBar
+		JMenuBar menuBar = new JMenuBar();
+		JMenu option = new JMenu("game");
+		JMenu help = new JMenu("help");
+		JMenuItem newGame = option.add("new game");
+		JMenuItem exit = option.add("exit");
+		JMenuItem about = help.add("about");
+		newGame.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				panel.resetMap();
+				panel.repaint();
+			}
+		});
+		exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		menuBar.add(option);
+		menuBar.add(help);
+		setJMenuBar(menuBar);
 		// default frame config
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//setSize(220,275);
 		setSize(560, 560);
 		setTitle("Charles's Tetris");
 		setVisible(true);
@@ -40,83 +50,22 @@ class TetrisPanel extends JPanel implements KeyListener {
 	private int blockType;
 	private int score;
 	private int turnState;
-	private int x;
-	private int y;
-	private int i, j, flag;
-	private boolean gameover;
-	// block already put down x=0-11,y=0-21;
-	int[][] map = new int[13][23];
-
-	TetrisPanel() {
-		resetMap();
-		newFallingBlock();
-		initWall();
-		Timer timer = new Timer(1000, new TimerListener());
-		timer.start();
-	}
-
-	public void resetMap() {
-		for (int i = 0; i < 12; i++) {
-			for (int j = 0; j < 22; j++) {
-				map[i][j] = 0;
-			}
-		}
-	}
-
-	public void newFallingBlock() {
-		blockType = (int) (Math.random() * 1000) % 7;
-		turnState = (int) (Math.random() * 1000) % 4;
-		x = 4;
-		y = 0;
-		if (gameover(x, y) == 1) {
-			resetMap();
-			initWall();
-			score = 0;
-			JOptionPane.showMessageDialog(null, "GAME OVER");
-		}
-	}
-
-	// draw weiqiang
-	public void initWall() {
-		for (int i = 0; i < 12; i++) {
-			map[i][21] = 2;  // when map[][] = 2, there is a rect.
-		}
-		for (int j = 0; j < 22; j++) {
-			map[11][j] = 2;
-			map[0][j] = 2;
-		}
-	}
-
-	// draw blocks
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		for (j = 0; j < 16; j++) {
-			if (fallingBlock[blockType][turnState][j] == 1) {
-				g.fillRect((j % 4 + x + 1) * 20, (j / 4 + y) * 20, 20, 20);  // draw blocks still in the air, constituded with four squares.
-			}
-		}
-		// draw guding block
-		for (j = 0; j < 22; j++) {
-			for (i = 0; i < 12; i++) {
-				if (map[i][j] == 1) {
-					g.fillRect(i * 20, j * 20, 20, 20);
-				}  // draw blocks already put down, color black
-				g.setColor(Color.RED);
-				if (map[i][j] == 2) {
-					g.drawRect(i * 20, j * 20, 20, 20);
-				}  // draw the wall
-			}
-		}
-		g.drawString("score=" + score, 125, 10);
-	}
-
-	// falling block, First group is block type s,z,l,j,i,o,t 7 types.second groupe is rotate times, third group is block juzhen
+	private int fallingBlockX;
+	private int fallingBlockY;
+	private int flag;
+	private Color color;
+	// block already put down x=0-11,y=0-21; if map == 0, there is blank, eles if map == 1, there is square that already fell down
+	// else if map == 2, there is square make the wall
+	private int[][] map = new int[13][23];
+	// falling block, First group is block type s,z,l,j,i,o,t 7 types.second groupe is rotate state, 4 types.
+	// third group is block juzhen, every block is constitude of 4*4 = 16 squares.
+	// if fallingBlock == 1, there is a square, else if fallingBlock == 0, there is not a square.
 	private final int fallingBlock[][][] = new int[][][] {
 	// i
-			{ { 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-					{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 },
-					{ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-					{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 } },
+			{ { 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },                   
+					{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 },				
+					{ 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },				
+					{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 } },			
 			// s
 			{ { 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 					{ 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
@@ -147,15 +96,122 @@ class TetrisPanel extends JPanel implements KeyListener {
 					{ 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
 					{ 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 					{ 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0 } } };
-	
+
+
+    // constructure method
+	TetrisPanel() {
+		resetMap();
+		Timer timer = new Timer(1000, new TimerListener());
+		timer.start();
+	}
+
+	public void resetMap() {
+		for (int i = 0; i < 12; i++) {
+			for (int j = 0; j < 22; j++) {
+				map[i][j] = 0;
+			}
+		}
+		score = 0;
+		initWall();
+		newFallingBlock();
+		repaint();
+	}
+
+	// draw weiqiang
+	public void initWall() {
+		for (int i = 0; i < 12; i++) {
+			map[i][21] = 2;  // when map[][] = 2, there is a square.
+		}
+		for (int j = 0; j < 22; j++) {
+			map[11][j] = 2;
+			map[0][j] = 2;
+		}
+	}
+
+	public void newFallingBlock() {
+		blockType = (int) (Math.random() * 1000) % 7;
+		turnState = (int) (Math.random() * 1000) % 4;
+		fallingBlockX = 4;
+		fallingBlockY = 0;
+		gameOver(fallingBlockX, fallingBlockY);
+	}
+
+	// is game over
+	public void gameOver(int x, int y) {
+		if (!isOk(x, y, blockType, turnState)) {
+			resetMap();
+			initWall();
+			JOptionPane.showMessageDialog(null, "GAME OVER");
+		}
+	}
+
+	// to judge is this operation legue or not
+	public boolean isOk(int fallingBlockX, int fallingBlockY, int blockType, int turnState) {
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (((fallingBlock[blockType][turnState][i * 4 + j] == 1) && (map[fallingBlockX + j + 1][fallingBlockY + i] == 1))
+					|| ((fallingBlock[blockType][turnState][i * 4 + j] == 1) && (map[fallingBlockX + j + 1][fallingBlockY + i] ==2))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// draw blocks
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		switch (blockType) {
+			case 0:
+				g.setColor(Color.yellow);
+				break;
+			case 1:
+				g.setColor(Color.green);
+				break;
+			case 2:
+				g.setColor(Color.blue);
+				break;
+			case 3:
+				g.setColor(Color.red);
+				break;
+			case 4:
+				g.setColor(Color.cyan);
+				break;
+			case 5:
+				g.setColor(Color.pink);
+				break;
+			case 6:
+				g.setColor(Color.orange);
+				break;
+		}
+		for (int i = 0; i < 16; i++) {
+			if (fallingBlock[blockType][turnState][i] == 1) {
+				g.setColor(color);
+				g.fillRect((i % 4 + fallingBlockX + 1) * 20 + 160, (i / 4 + fallingBlockY) * 20, 20, 20);  
+				// draw blocks still in the air, constituded with four squares.
+				// add 160 to move the whole map to the middle of panel
+			}
+		}
+		// draw block already fell down and the wall
+		for (int j = 0; j < 22; j++) {
+			for (int i = 0; i < 12; i++) {
+				if (map[i][j] == 1) {
+					g.fillRect(i * 20 + 160, j * 20, 20, 20);
+				}  // draw blocks already put down, color black
+				g.setColor(Color.RED);
+				if (map[i][j] == 2) {
+					g.drawRect(i * 20 + 160, j * 20, 20, 20);
+				}  // draw the wall
+			}
+		}
+		g.drawString("score=" + score, 125, 10);
+	}
 
 	// rotate
 	public void turn() {
 		int tempturnState = turnState;
 		turnState = (turnState + 1) % 4;
-		if (blow(x, y, blockType, turnState) == 1) {
-		}
-		if (blow(x, y, blockType, turnState) == 0) {
+		if (!isOk(fallingBlockX, fallingBlockY, blockType, turnState)) {
 			turnState = tempturnState;
 		}
 		repaint();
@@ -163,95 +219,62 @@ class TetrisPanel extends JPanel implements KeyListener {
 
 	// turn left
 	public void left() {
-		if (blow(x - 1, y, blockType, turnState) == 1) {
-			x = x - 1;
+		if (isOk(fallingBlockX - 1, fallingBlockY, blockType, turnState)) {
+			fallingBlockX = fallingBlockX - 1;
 		}
-		;
 		repaint();
 	}
 
 	// turn right
 	public void right() {
-		if (blow(x + 1, y, blockType, turnState) == 1) {
-			x = x + 1;
+		if (isOk(fallingBlockX + 1, fallingBlockY, blockType, turnState)) {
+			fallingBlockX = fallingBlockX + 1;
 		}
-		;
 		repaint();
 	}
 
 	// put down
 	public void down() {
-		if (blow(x, y + 1, blockType, turnState) == 1) {
-			y = y + 1;
-			delline();
-		}
-		;
-		if (blow(x, y + 1, blockType, turnState) == 0) {
-			add(x, y, blockType, turnState);
+		if (isOk(fallingBlockX, fallingBlockY + 1, blockType, turnState)) {
+			fallingBlockY = fallingBlockY + 1;
+		} else if (!isOk(fallingBlockX, fallingBlockY + 1, blockType, turnState)) {
+			add(fallingBlockX, fallingBlockY, blockType, turnState);
+			deleteLine();
 			newFallingBlock();
-			delline();
 		}
-		;
 		repaint();
 	}
 
-	// is this legue
-	public int blow(int x, int y, int blockType, int turnState) {
-		for (int a = 0; a < 4; a++) {
-			for (int b = 0; b < 4; b++) {
-				if (((fallingBlock[blockType][turnState][a * 4 + b] == 1) && (map[x
-						+ b + 1][y + a] == 1))
-						|| ((fallingBlock[blockType][turnState][a * 4 + b] == 1) && (map[x
-								+ b + 1][y + a] == 2))) {
-
-					return 0;
-				}
-			}
-		}
-		return 1;
-	}
-
 	// delete a line
-	public void delline() {
-		int c = 0;
-		for (int b = 0; b < 22; b++) {
-			for (int a = 0; a < 12; a++) {
-				if (map[a][b] == 1) {
-
-					c = c + 1;
-					if (c == 10) {
-						score += 10;
-						for (int d = b; d > 0; d--) {
-							for (int e = 0; e < 11; e++) {
-								map[e][d] = map[e][d - 1];
-
+	public void deleteLine() {
+		int count = 0;
+		for (int j = 0; j < 22; j++) {
+			for (int i = 0; i < 12; i++) {
+				if (map[i][j] == 1) {
+					count ++;
+					if (count == 10) {
+						score += 100;
+						for (int y = j; y > 0; y--) {
+							for (int x = 0; x < 11; x++) {
+								map[x][y] = map[x][y - 1];
 							}
 						}
 					}
 				}
 			}
-			c = 0;
+			count = 0;
 		}
-	}
-
-	// is game over
-	public int gameover(int x, int y) {
-		if (blow(x, y, blockType, turnState) == 0) {
-			return 1;
-		}
-		return 0;
 	}
 
 	// add this to map
-	public void add(int x, int y, int blockType, int turnState) {
+	public void add(int fallingBlockX, int fallingBlockY, int blockType, int turnState) {
 		int j = 0;
 		for (int a = 0; a < 4; a++) {
 			for (int b = 0; b < 4; b++) {
-				if (map[x + b + 1][y + a] == 0) {
-					map[x + b + 1][y + a] = fallingBlock[blockType][turnState][j];
+				if (map[fallingBlockX + b + 1][fallingBlockY + a] == 0) {
+					map[fallingBlockX + b + 1][fallingBlockY + a] = fallingBlock[blockType][turnState][j];
 				}
-				;
-				j++;
+				j ++;
 			}
 		}
 	}
@@ -272,7 +295,6 @@ class TetrisPanel extends JPanel implements KeyListener {
 			left();
 			break;
 		}
-
 	}
 
 	// of no use
@@ -286,24 +308,14 @@ class TetrisPanel extends JPanel implements KeyListener {
 	// time listener
 	class TimerListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-
 			repaint();
-			if (blow(x, y + 1, blockType, turnState) == 1) {
-				y = y + 1;
-				delline();
+			if (isOk(fallingBlockX, fallingBlockY + 1, blockType, turnState)) {
+				fallingBlockY = fallingBlockY + 1;
+			} else if (!isOk(fallingBlockX, fallingBlockY + 1, blockType, turnState)) {
+				add(fallingBlockX, fallingBlockY, blockType, turnState);
+				deleteLine();
+				newFallingBlock();
 			}
-			;
-			if (blow(x, y + 1, blockType, turnState) == 0) {
-
-				if (flag == 1) {
-					add(x, y, blockType, turnState);
-					delline();
-					newFallingBlock();
-					flag = 0;
-				}
-				flag = 1;
-			}
-			;
 		}
 	}
 }
