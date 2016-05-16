@@ -37,6 +37,8 @@ class TetrisFrame extends JFrame {
 		menuBar.add(option);
 		menuBar.add(help);
 		setJMenuBar(menuBar);
+		// little component - buttons and lebles
+		// JLable scoreLable = new JLable("");
 		// default frame config
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(560, 560);
@@ -53,7 +55,6 @@ class TetrisPanel extends JPanel implements KeyListener {
 	private int fallingBlockX;
 	private int fallingBlockY;
 	private int flag;
-	private Color color;
 	// block already put down x=0-11,y=0-21; if map == 0, there is blank, eles if map == 1, there is square that already fell down
 	// else if map == 2, there is square make the wall
 	private int[][] map = new int[13][23];
@@ -100,6 +101,8 @@ class TetrisPanel extends JPanel implements KeyListener {
 
     // constructure method
 	TetrisPanel() {
+		//JButton scoreLabel = new JButton("hello");
+		//add(scoreLabel);
 		resetMap();
 		Timer timer = new Timer(1000, new TimerListener());
 		timer.start();
@@ -186,7 +189,6 @@ class TetrisPanel extends JPanel implements KeyListener {
 		}
 		for (int i = 0; i < 16; i++) {
 			if (fallingBlock[blockType][turnState][i] == 1) {
-				g.setColor(color);
 				g.fillRect((i % 4 + fallingBlockX + 1) * 20 + 160, (i / 4 + fallingBlockY) * 20, 20, 20);  
 				// draw blocks still in the air, constituded with four squares.
 				// add 160 to move the whole map to the middle of panel
