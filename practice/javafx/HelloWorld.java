@@ -14,6 +14,7 @@ public class HelloWorld extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("hello world");
+		primaryStage.setIconified(false);  // default is false, if set true, then the stage will minimaze on start.
 		Button btn = new Button();
 		btn.setText("Say 'Hello World'");
 		btn.setOnAction(new EventHandler<ActionEvent>() {
