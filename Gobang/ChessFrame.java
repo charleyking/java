@@ -20,8 +20,7 @@ public class ChessFrame extends JFrame {
 	}
 
 	public ChessFrame() {
-		setTitle("Gobang");
-		chessBoard = new ChessBoard();
+		// menu bar
 		menuBar = new JMenuBar();
 		option = new JMenu("option");
 		startMenuItem = new JMenuItem("start");
@@ -30,28 +29,32 @@ public class ChessFrame extends JFrame {
 		option.add(startMenuItem);
 		option.add(exitMenuItem);
 		option.add(backMenuItem);
+		menuBar.add(option);
+		setJMenuBar(menuBar);
 		MyActionListener myActionListener = new MyActionListener();
 		startMenuItem.addActionListener(myActionListener);
 		backMenuItem.addActionListener(myActionListener);
 		exitMenuItem.addActionListener(myActionListener);
-		menuBar.add(option);
-		setJMenuBar(menuBar);
+		// tool bar
 		toolbar = new JPanel();
 		startButton = new JButton("restart");
 		backButton = new JButton("back");
 		exitButton = new JButton("exit");
-		toolbar.setLayout(new FlowLayout(FlowLayout.LEFT));
 		toolbar.add(startButton);
 		toolbar.add(exitButton);
 		toolbar.add(backButton);
+		toolbar.setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(toolbar,BorderLayout.NORTH);
 		startButton.addActionListener(myActionListener);
 		exitButton.addActionListener(myActionListener);
 		backButton.addActionListener(myActionListener);
-		add(toolbar,BorderLayout.NORTH);
+		// chess board
+		chessBoard = new ChessBoard();
 		add(chessBoard);
+		// init frame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600,650);
-		//pack();
+		setTitle("Gobang");
 	}
 
 	private class MyActionListener implements ActionListener {
