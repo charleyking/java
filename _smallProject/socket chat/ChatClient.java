@@ -18,7 +18,7 @@ public class ChatClient {
                 } catch (IOException ie) {  
                     System.err.println("IO error!");   
                 }
-                if(outMessage.equals("bye")) break;
+                if (outMessage.equals("bye")) break;
                 String outString = "Client say: "+ outMessage;
                 byte[] buf = outString.getBytes();
                 DatagramPacket out = new DatagramPacket(buf,buf.length,hostAddress,4000);
