@@ -16,7 +16,7 @@ public class ChatClient {
                 try {
                     outMessage = stdin.readLine();
                 } catch (IOException ie) {  
-                    System.err.println("IO error!");   
+                    System.err.println("IO error!");  
                 }
                 if (outMessage.equals("bye")) break;
                 String outString = "Client say: "+ outMessage;

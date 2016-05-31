@@ -5,26 +5,74 @@ import java.net.*;
 import java.util.*;
 import javax.swing.*;
 public class ChatServerFrame extends JFrame {
-	private JTextArea ta_info;
-	private ServerSocket server; // 声明ServerSocket对象
-	private Socket socket; // 声明Socket对象socket
-	private Hashtable<String, Socket> map = new Hashtable<String, Socket>();// 用于存储连接到服务器的用户和客户端套接字对象
+	private JScrollPane scrollPane;
+	private JTextArea textArea_info;
+	private ServerSocket server; 
+	private Socket socket; 
+	private Hashtable<String, Socket> map = new Hashtable<String, Socket>();
+
+	public ChatServerFrame() {
+		super();
+		/*addWindowListener(new WindowAdapter() {
+			public void windowIconified(final WindowEvent e) {
+				setVisible(false);
+			}
+		});*/
+		//setBounds(100, 100, 385, 266);
+		scrollPane = new JScrollPane();
+		getContentPane().add(scrollPane, BorderLayout.CENTER);
+		textArea_info = new JTextArea();
+		scrollPane.setViewportView(textArea_info);
+		setTitle("chat room server");
+		setSize(550, 600);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// tray
+		/*if (SystemTray.isSupported()){ 
+			URL url=ChatServerFrame.class.getResource("1.jpg"); 
+			ImageIcon icon = new ImageIcon(url); 
+			Image image=icon.getImage(); 
+			TrayIcon trayIcon=new TrayIcon(image);
+			trayIcon.addMouseListener(new MouseAdapter(){ 
+				public void mouseClicked(MouseEvent e){ 
+					if (e.getClickCount()==2){ 
+						showFrame(); 
+					}
+				}
+			});
+			trayIcon.setToolTip("system tray");
+			PopupMenu popupMenu=new PopupMenu(); 
+			MenuItem exit=new MenuItem("exit"); 
+			exit.addActionListener(new ActionListener() { 
+				public void actionPerformed(final ActionEvent arg0) {
+					System.exit(0); 
+				}
+			});
+			popupMenu.add(exit); 
+			trayIcon.setPopupMenu(popupMenu);
+			SystemTray systemTray=SystemTray.getSystemTray(); 
+			try{
+				systemTray.add(trayIcon); 
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}*/
+	}
 
 	public void createSocket() {
 		try {
-				server = new ServerSocket(1982);// 创建服务器套接字对象
+				server = new ServerSocket(1982);
 				while (true) {
-						ta_info.append("等待新客户连接......\n");
-						socket = server.accept();// 获得套接字对象
-						ta_info.append("客户端连接成功。" + socket + "\n");
-						new ServerThread(socket).start();// 创建并启动线程对象
+						textArea_info.append("waiting new client to connect\n");
+						socket = server.accept();
+						textArea_info.append("client connect successful " + socket + "\n");
+						new ServerThread(socket).start();
 				}
 		} catch (IOException e) {
 				e.printStackTrace();
 			}
-}
+	}
 
-class ServerThread extends Thread {
+	class ServerThread extends Thread {
 	Socket socket;
 	public ServerThread(Socket socket) {
 		this.socket = socket;
@@ -41,48 +89,48 @@ class ServerThread extends Thread {
 				}
 				if (v != null && v.size() > 0) {
 					for (int i = 0; i < v.size(); i++) {
-						String info = (String) v.get(i);// 读取信息
+						String info = (String) v.get(i); // get message
 						String key = "";
-						if (info.startsWith("用户：")) {// 添加登录用户到客户端列表
-							key = info.substring(3, info.length());// 获得用户名并作为键使用
-							map.put(key, socket);// 添加键值对
-							Set<String> set = map.keySet();// 获得集合中所有键的Set视图
-							Iterator<String> keyIt = set.iterator();// 获得所有键的迭代器
+						if (info.startsWith("user: ")) { // add login user to client list
+							key = info.substring(3, info.length()); // get user name as key
+							map.put(key, socket);
+							Set<String> set = map.keySet();
+							Iterator<String> keyIt = set.iterator();
 							while (keyIt.hasNext()) {
-								String receiveKey = keyIt.next();// 获得表示接收信息的键
-								Socket s = map.get(receiveKey);// 获得与该键对应的套接字对象
-								PrintWriter out = new PrintWriter(s.getOutputStream(), true);// 创建输出流对象
-								Iterator<String> keyIt1 = set.iterator();// 获得所有键的迭代器
+								String receiveKey = keyIt.next(); // get message as key
+								Socket s = map.get(receiveKey);
+								PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+								Iterator<String> keyIt1 = set.iterator();
 								while (keyIt1.hasNext()) {
-									String receiveKey1 = keyIt1.next();// 获得键，用于向客户端添加用户列表
-									out.println(receiveKey1);// 发送信息
-									out.flush();// 刷新输出缓冲区
+									String receiveKey1 = keyIt1.next(); // add user list to client
+									out.println(receiveKey1);
+									out.flush();
 								}
 							}
-						} else if (info.startsWith("退出：")) {
-							key = info.substring(3);// 获得退出用户的键
-							map.remove(key);// 删除键值对
-							Set<String> set = map.keySet();// 获得集合中所有键的Set视图
-							Iterator<String> keyIt = set.iterator();// 获得所有键的迭代器
+						} else if (info.startsWith("exit: ")) {
+							key = info.substring(3);// get exit user as key
+							map.remove(key);
+							Set<String> set = map.keySet();
+							Iterator<String> keyIt = set.iterator();
 							while (keyIt.hasNext()) {
-								String receiveKey = keyIt.next();// 获得表示接收信息的键
-								Socket s = map.get(receiveKey);// 获得与该键对应的套接字对象
-								PrintWriter out = new PrintWriter(s.getOutputStream(), true);// 创建输出流对象
-								out.println("退出：" + key);// 发送信息
-								out.flush();// 刷新输出缓冲区
+								String receiveKey = keyIt.next();
+								Socket s = map.get(receiveKey);
+								PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+								out.println("exit: " + key);
+								out.flush();
 							}
-						} else {// 转发接收的消息
-							key = info.substring(info.indexOf("：发送给：") + 5,info.indexOf("：的信息是："));// 获得接收方的key值,即接收方的用户名（因为substring起始索引包括，结尾索引不包括所以要+5）
-							String sendUser = info.substring(0, info.indexOf("：发送给："));// 获得发送方的key值,即发送方的用户名
-							Set<String> set = map.keySet();// 获得集合中所有键的Set视图
-							Iterator<String> keyIt = set.iterator();// 获得所有键的迭代器
+						} else { // resent message
+							key = info.substring(info.indexOf(": resent to : ") + 5,info.indexOf(": message is: ")); // get receive user as key
+							String sendUser = info.substring(0, info.indexOf(": send to : ")); // get send user as key
+							Set<String> set = map.keySet();
+							Iterator<String> keyIt = set.iterator();
 							while (keyIt.hasNext()) {
-								String receiveKey = keyIt.next();// 获得表示接收信息的键
-								if (key.equals(receiveKey) && !sendUser.equals(receiveKey)) {// 与接受用户相同，但不是发送用户
-									Socket s = map.get(receiveKey);// 获得与该键对应的套接字对象
-									PrintWriter out = new PrintWriter(s.getOutputStream(), true);// 创建输出流对象
-									out.println("MSG:" + info);// 发送信息
-									out.flush();// 刷新输出缓冲区
+								String receiveKey = keyIt.next();
+								if (key.equals(receiveKey) && !sendUser.equals(receiveKey)) { // same as receive user, not send user
+									Socket s = map.get(receiveKey);
+									PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+									out.println("MSG:" + info);
+									out.flush();
 								}
 							}
 						}
@@ -90,66 +138,19 @@ class ServerThread extends Thread {
 				}
 			}
 		} catch (IOException e) {
-			ta_info.append(socket + "已经退出。\n");
+			textArea_info.append(socket + "already exited \n");
 		}
 	}
-}
+	}
+
+	public void showFrame(){
+		this.setVisible(true); 
+		this.setState(Frame.NORMAL);
+	}
 
 	public static void main(String args[]) {
 		ChatServerFrame frame = new ChatServerFrame();
 		frame.setVisible(true);
 		frame.createSocket();
-	}
-
-/**
-* Create the frame
-*/
-	public ChatServerFrame() {
-		super();
-		addWindowListener(new WindowAdapter() {
-			public void windowIconified(final WindowEvent e) {
-				setVisible(false);
-			}
-		});
-		setTitle("聊天室服务器端");
-		setBounds(100, 100, 385, 266);
-		final JScrollPane scrollPane = new JScrollPane();
-		getContentPane().add(scrollPane, BorderLayout.CENTER);
-		ta_info = new JTextArea();
-		scrollPane.setViewportView(ta_info);
-		//托盘
-		if (SystemTray.isSupported()){ // 判断是否支持系统托盘
-			URL url=ChatServerFrame.class.getResource("1.jpg"); // 获取图片所在的URL
-			ImageIcon icon = new ImageIcon(url); // 实例化图像对象
-			Image image=icon.getImage(); // 获得Image对象
-			TrayIcon trayIcon=new TrayIcon(image); // 创建托盘图标
-			trayIcon.addMouseListener(new MouseAdapter(){ // 为托盘添加鼠标适配器
-				public void mouseClicked(MouseEvent e){ // 鼠标事件
-					if (e.getClickCount()==2){ // 判断是否双击了鼠标
-						showFrame(); // 调用方法显示窗体
-					}
-				}
-			});
-			trayIcon.setToolTip("系统托盘"); // 添加工具提示文本
-			PopupMenu popupMenu=new PopupMenu(); // 创建弹出菜单
-			MenuItem exit=new MenuItem("退出"); // 创建菜单项
-			exit.addActionListener(new ActionListener() { // 添加事件监听器
-				public void actionPerformed(final ActionEvent arg0) {
-					System.exit(0); // 退出系统
-				}
-			});
-			popupMenu.add(exit); // 为弹出菜单添加菜单项
-			trayIcon.setPopupMenu(popupMenu); // 为托盘图标加弹出菜弹
-			SystemTray systemTray=SystemTray.getSystemTray(); // 获得系统托盘对象
-			try{
-				systemTray.add(trayIcon); // 为系统托盘加托盘图标
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-	}
-	public void showFrame(){
-		this.setVisible(true); // 显示窗体
-		this.setState(Frame.NORMAL);
 	}
 }

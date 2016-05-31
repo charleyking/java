@@ -7,25 +7,161 @@ import java.util.*;
 import javax.swing.*;
 
 public class ChatClientFrame extends JFrame {
-	private JTextField tf_newUser;
+	private JPanel topPanel, bottomPanel;
+	private JLabel label_send, lable_user;
+	private JButton button_send, button_login, button_exit;
+	private JTextField textField_newUser, textField_send;
+	private JScrollPane rightScrollPane, leftScrollPane;
+	private JSplitPane splitPane;
 	private JList user_list;
-	private JTextArea ta_info;
-	private JTextField tf_send;
+	private JTextArea textArea_info;
+	//private JTextField textField_send;
 	private ObjectOutputStream out;
 	private boolean loginFlag = false;
-	public static void main(String args[]) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ChatClientFrame frame = new ChatClientFrame();
-					frame.setVisible(true);
-					frame.createClientSocket();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+
+	public ChatClientFrame() {
+		super();
+		//setBounds(100, 100, 385, 288);
+		// bottom panel
+		bottomPanel = new JPanel();
+		getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+		label_send = new JLabel();
+		label_send.setText("Please input the chat content: ");
+		bottomPanel.add(label_send);
+		textField_send = new JTextField();
+		/*textField_send.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				send();
+			}
+		});*/
+		textField_send.setPreferredSize(new Dimension(180, 25));
+		bottomPanel.add(textField_send);
+		button_send = new JButton();
+		button_send.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				send();
 			}
 		});
-	}
+		button_send.setText("send");
+		bottomPanel.add(button_send);
+		// center panel -- this is a split panel
+		splitPane = new JSplitPane();
+		splitPane.setDividerLocation(100);
+		getContentPane().add(splitPane, BorderLayout.CENTER);
+		// right panel -- this is a scroll panel with a textArea in it
+		rightScrollPane = new JScrollPane();
+		splitPane.setRightComponent(rightScrollPane);
+		textArea_info = new JTextArea();
+		textArea_info.setFont(new Font("", Font.BOLD, 14));
+		rightScrollPane.setViewportView(textArea_info);
+		// left panel -- this is a scroll panel with a list of login users
+		leftScrollPane = new JScrollPane();
+		splitPane.setLeftComponent(leftScrollPane);
+		user_list = new JList();
+		//user_list.setModel(new DefaultComboBoxModel(new String[] { "" }));
+		leftScrollPane.setViewportView(user_list);
+		// top panel 
+		topPanel = new JPanel();
+		getContentPane().add(topPanel, BorderLayout.NORTH);
+		lable_user = new JLabel();
+		lable_user.setText("user name: ");
+		topPanel.add(lable_user);
+		textField_newUser = new JTextField();
+		textField_newUser.setPreferredSize(new Dimension(140, 25));
+		topPanel.add(textField_newUser);
+		button_login = new JButton();
+		button_login.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (loginFlag) { // already login
+					JOptionPane.showMessageDialog(null, "you've already login in!");
+					return;
+				}
+				String userName = textField_newUser.getText().trim(); // get user name
+				/*Vector v = new Vector(); // save the user data
+				//v.add("user: " + userName);// add login user
+				try {
+					out.writeObject(v); // send user data to server
+					out.flush();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+				*/
+				textField_newUser.setEnabled(false); // disable the user text field
+				loginFlag = true; // already login
+			}
+		});
+		button_login.setText("login");
+		topPanel.add(button_login);
+		button_exit = new JButton();
+		button_exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				/*String exitUser = textField_newUser.getText().trim();
+				Vector v = new Vector();
+				//v.add("exit: " + exitUser);
+				try {
+					out.writeObject(v);
+					out.flush();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}*/
+				System.exit(0);
+			}
+		});
+		button_exit.setText("eixt");
+		topPanel.add(button_exit);
+
+		setSize(550, 600);
+		setTitle("Chat Room");
+		setVisible(true);
+		setState(Frame.NORMAL);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		/*// tray
+		if (SystemTray.isSupported()){  // judge if support system tray
+			URL url=ChatClientFrame.class.getResource("1.jpg");   // get url of image
+			ImageIcon icon = new ImageIcon(url); 
+			Image image=icon.getImage(); 
+			TrayIcon trayIcon=new TrayIcon(image); // create tray icon
+			trayIcon.addMouseListener(new MouseAdapter(){ 
+				public void mouseClicked(MouseEvent e){ 
+					if (e.getClickCount()==2){  // if double clicked mouse
+						//showFrame(); 
+					}
+				}
+			});
+			trayIcon.setToolTip("system tray"); 
+			PopupMenu popupMenu=new PopupMenu(); 
+			MenuItem exit=new MenuItem("exit"); 
+			exit.addActionListener(new ActionListener() { 
+				public void actionPerformed(final ActionEvent arg0) {
+					String exitUser = textField_newUser.getText().trim();
+					Vector v = new Vector();
+					//v.add("exit: " + exitUser);
+					try {
+						out.writeObject(v);
+						out.flush();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					System.exit(0); 
+				}
+			});
+			popupMenu.add(exit); 
+			trayIcon.setPopupMenu(popupMenu); 
+			SystemTray systemTray=SystemTray.getSystemTray(); 
+			try{
+				systemTray.add(trayIcon); 
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		} */
+	} 
+
+	/*public void showFrame(){
+		this.setVisible(true); // show frame
+		this.setState(Frame.NORMAL);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}*/
+
 
 	public void createClientSocket() {
 		try {
@@ -49,34 +185,34 @@ public class ChatClientFrame extends JFrame {
 				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); // create an input stream
 				DefaultComboBoxModel model = (DefaultComboBoxModel) user_list.getModel(); // get list model
 				while (true) {
-					String info = in.readLine().trim();// 读取信息
-					if (!info.startsWith("MSG:")) {// 接收到的不是消息
-						if (info.startsWith("退出：")) {// 接收到的是退出消息
-							model.removeElement(info.substring(3));// 从用户列表中移除用户
-						} else {// 接收到的是登录用户
-							boolean itemFlag = false;// 标记是否为列表框添加列表项，为true不添加，为false添加
-							for (int i = 0; i < model.getSize(); i++) {// 对用户列表进行遍历
-								if (info.equals((String) model.getElementAt(i))) {// 如果用户列表中存在该用户名
-									itemFlag = true;// 设置为true，表示不添加到用户列表
-									break;// 结束for循环
+					String info = in.readLine().trim(); // read message
+					if (!info.startsWith("MSG:")) {
+						if (info.startsWith("exit: ")) { // start with exit message
+							model.removeElement(info.substring(3)); // remove user from list
+						} else { 
+							boolean itemFlag = false;
+							for (int i = 0; i < model.getSize(); i++) {
+								if (info.equals((String) model.getElementAt(i))) {
+									itemFlag = true;
+									break;
 								}
 							}
 							if (!itemFlag) {
-								//model.addElement(info);// 将登录用户添加到用户列表
+								//model.addElement(info);
 								System.out.println("add login user to user list");
 							} 
 						}
-					} else {// 如果获得的是消息，则在文本域中显示接收到的消息
-						DateFormat df = DateFormat.getDateInstance();// 获得DateFormat实例
-						String dateString = df.format(new Date()); // 格式化为日期
-						df = DateFormat.getTimeInstance(DateFormat.MEDIUM);// 获得DateFormat实例
-						String timeString = df.format(new Date()); // 格式化为时间
-						String sendUser = info.substring(4,info.indexOf("：发送给："));// 获得发送信息的用户
-						String receiveInfo = info.substring(info.indexOf("：的信息是：")+6);// 获得接收到的信息
-						ta_info.append(" "+sendUser + " " +dateString+" "+timeString+"\n "+receiveInfo+"\n");// 在文本域中显示信息
-						ta_info.setSelectionStart(ta_info.getText().length()-1);// 设置选择起始位置
-						ta_info.setSelectionEnd(ta_info.getText().length());// 设置选择的结束位置
-						tf_send.requestFocus();// 使发送信息文本框获得焦点
+					} else { // if received message, than show it at text area
+						DateFormat df = DateFormat.getDateInstance();
+						String dateString = df.format(new Date()); 
+						df = DateFormat.getTimeInstance(DateFormat.MEDIUM);
+						String timeString = df.format(new Date()); 
+						String sendUser = info.substring(4,info.indexOf(": send to: "));
+						String receiveInfo = info.substring(info.indexOf(": received message is: ")+6);
+						textArea_info.append(" "+sendUser + " " +dateString+" "+timeString+"\n "+receiveInfo+"\n"); // show in the text area
+						textArea_info.setSelectionStart(textArea_info.getText().length()-1);
+						textArea_info.setSelectionEnd(textArea_info.getText().length());
+						textField_send.requestFocus();
 					}
 				}
 			} catch (IOException e) {
@@ -86,174 +222,61 @@ public class ChatClientFrame extends JFrame {
 	}
 
 	private void send() {
-		if (!loginFlag) {
-			JOptionPane.showMessageDialog(null, "请先登录。");
-			return;// 如果用户没登录则返回
+		/*if (!loginFlag) {
+			JOptionPane.showMessageDialog(null, "please login first");
+			return;
+		}*/
+		String sendUserName = textField_newUser.getText().trim();
+		String sendText = textField_send.getText();
+		if (sendText.equals("")) {
+			return;
 		}
-		String sendUserName = tf_newUser.getText().trim();// 获得登录用户名
-		String info = tf_send.getText();// 获得输入的发送信息
-		if (info.equals("")) {
-			return;// 如果没输入信息则返回，即不发送
-		}
-		Vector<String> v = new Vector<String>();// 创建向量对象，用于存储发送的消息
-		java.util.List receiveUserNamesList = user_list.getSelectedValuesList();// 获得选择的用户
+		/*Vector<String> v = new Vector<String>();
+		java.util.List receiveUserNamesList = user_list.getSelectedValuesList(); // get select user 
 		Object[] receiveUserNames = receiveUserNamesList.toArray();
 		if (receiveUserNames.length <= 0) {
-			return;// 如果没选择用户则返回
+			return;
 		}
 		for (int i = 0; i < receiveUserNames.length; i++) {
-			String msg = sendUserName + "：发送给：" + (String) receiveUserNames[i]+ "：的信息是： " + info;// 定义发送的信息
-			v.add(msg);// 将信息添加到向量
+			String message = sendUserName + " send to " + (String) receiveUserNames[i]+ ": " + sendText; // identify the message
+			v.add(message);
 		}
 		try {
-			out.writeObject(v);// 将向量写入输出流，完成信息的发送
-			out.flush();// 刷新输出缓冲区
+			out.writeObject(v);
+			out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		DateFormat df = DateFormat.getDateInstance();// 获得DateFormat实例
-		String dateString = df.format(new Date()); // 格式化为日期
-		df = DateFormat.getTimeInstance(DateFormat.MEDIUM);// 获得DateFormat实例
-		String timeString = df.format(new Date()); // 格式化为时间
-		String sendUser = tf_newUser.getText().trim();// 获得发送信息的用户
-		String receiveInfo = tf_send.getText().trim();// 显示发送的信息
-		ta_info.append(" "+sendUser + " " +dateString+" "+timeString+"\n "+receiveInfo+"\n");// 在文本域中显示信息
-		tf_send.setText(null);// 清空文本框
-		ta_info.setSelectionStart(ta_info.getText().length()-1);// 设置选择的起始位置
-		ta_info.setSelectionEnd(ta_info.getText().length());// 设置选择的结束位置
-		tf_send.requestFocus();// 使发送信息文本框获得焦点
+		}*/
+		System.out.println("I'm in send method");
+		DateFormat df = DateFormat.getDateInstance(); // get dataformat instance
+		String dateString = df.format(new Date()); // format to date
+		df = DateFormat.getTimeInstance(DateFormat.MEDIUM);
+		String timeString = df.format(new Date()); // format to time
+		String sendUser = textField_newUser.getText().trim();
+		String receiveInfo = textField_send.getText().trim();
+		textArea_info.append(" "+sendUser + " " +dateString+" "+timeString+"\n "+receiveInfo+"\n");
+		textField_send.setText(null);
+		textArea_info.setSelectionStart(textArea_info.getText().length()-1);
+		textArea_info.setSelectionEnd(textArea_info.getText().length());
+		textField_send.requestFocus();
 	}
 
-/**
-* Create the frame
-*/
-	public ChatClientFrame() {
-		super();
-		setTitle("聊天室客户端");
-		setBounds(100, 100, 385, 288);
-		final JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.SOUTH);
-		final JLabel label = new JLabel();
-		label.setText("输入聊天内容：");
-		panel.add(label);
-		tf_send = new JTextField();
-		tf_send.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				send();// 调用方法发送信息
-			}
-		});
-		tf_send.setPreferredSize(new Dimension(180, 25));
-		panel.add(tf_send);
-		final JButton button = new JButton();
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				send();// 调用方法发送信息
-			}
-		});
-		button.setText("发 送");
-		panel.add(button);
-		final JSplitPane splitPane = new JSplitPane();
-		splitPane.setDividerLocation(100);
-		getContentPane().add(splitPane, BorderLayout.CENTER);
-		final JScrollPane scrollPane = new JScrollPane();
-		splitPane.setRightComponent(scrollPane);
-		ta_info = new JTextArea();
-		ta_info.setFont(new Font("", Font.BOLD, 14));
-		scrollPane.setViewportView(ta_info);
-		final JScrollPane scrollPane_1 = new JScrollPane();
-		splitPane.setLeftComponent(scrollPane_1);
-		user_list = new JList();
-		//user_list.setModel(new DefaultComboBoxModel(new String[] { "" }));
-		scrollPane_1.setViewportView(user_list);
-		final JPanel panel_1 = new JPanel();
-		getContentPane().add(panel_1, BorderLayout.NORTH);
-		final JLabel label_1 = new JLabel();
-		label_1.setText("用户名称：");
-		panel_1.add(label_1);
-		tf_newUser = new JTextField();
-		tf_newUser.setPreferredSize(new Dimension(140, 25));
-		panel_1.add(tf_newUser);
-		final JButton button_1 = new JButton();
-		button_1.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				if (loginFlag) {// 已登录标记为true
-					JOptionPane.showMessageDialog(null, "在同一窗口只能登录一次。");
-					return;
-				}
-				String userName = tf_newUser.getText().trim();// 获得登录用户名
-				Vector v = new Vector();// 定义向量，用于存储登录用户
-				//v.add("用户：" + userName);// 添加登录用户
+	/*public static void main(String args[]) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
 				try {
-					out.writeObject(v);// 将用户向量发送到服务器
-					out.flush();// 刷新输出缓冲区
-				} catch (IOException ex) {
-					ex.printStackTrace();
+					ChatClientFrame frame = new ChatClientFrame();
+					//frame.showFrame();
+					frame.createClientSocket();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				tf_newUser.setEnabled(false);// 禁用用户文本框
-				loginFlag = true;// 将已登录标记设置为true
 			}
 		});
-		button_1.setText("登 录");
-		panel_1.add(button_1);
-		final JButton button_2 = new JButton();
-		button_2.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-				String exitUser = tf_newUser.getText().trim();
-				Vector v = new Vector();
-				//v.add("退出：" + exitUser);
-				try {
-					out.writeObject(v);
-					out.flush();// 刷新输出缓冲区
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-				System.exit(0); // 退出系统
-			}
-		});
-		button_2.setText("退 出");
-		panel_1.add(button_2);
-		/*//托盘
-		if (SystemTray.isSupported()){ // 判断是否支持系统托盘
-			URL url=ChatClientFrame.class.getResource("1.jpg"); // 获取图片所在的URL
-			ImageIcon icon = new ImageIcon(url); // 实例化图像对象
-			Image image=icon.getImage(); // 获得Image对象
-			TrayIcon trayIcon=new TrayIcon(image); // 创建托盘图标
-			trayIcon.addMouseListener(new MouseAdapter(){ // 为托盘添加鼠标适配器
-				public void mouseClicked(MouseEvent e){ // 鼠标事件
-					if (e.getClickCount()==2){ // 判断是否双击了鼠标
-						showFrame(); // 调用方法显示窗体
-					}
-				}
-			});
-			trayIcon.setToolTip("系统托盘"); // 添加工具提示文本
-			PopupMenu popupMenu=new PopupMenu(); // 创建弹出菜单
-			MenuItem exit=new MenuItem("退出"); // 创建菜单项
-			exit.addActionListener(new ActionListener() { // 添加事件监听器
-				public void actionPerformed(final ActionEvent arg0) {
-					String exitUser = tf_newUser.getText().trim();
-					Vector v = new Vector();
-					//v.add("退出：" + exitUser);
-					try {
-						out.writeObject(v);
-						out.flush();// 刷新输出缓冲区
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
-					System.exit(0); // 退出系统
-				}
-			});
-			popupMenu.add(exit); // 为弹出菜单添加菜单项
-			trayIcon.setPopupMenu(popupMenu); // 为托盘图标加弹出菜弹
-			SystemTray systemTray=SystemTray.getSystemTray(); // 获得系统托盘对象
-			try{
-				systemTray.add(trayIcon); // 为系统托盘加托盘图标
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		} */
-	} 
-	public void showFrame(){
-		this.setVisible(true); // 显示窗体
-		this.setState(Frame.NORMAL);
+	}*/
+
+	public static void main(String[] args) {
+		ChatClientFrame frame = new ChatClientFrame();
+		frame.createClientSocket();
 	}
 }
