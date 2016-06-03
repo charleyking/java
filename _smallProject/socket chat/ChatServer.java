@@ -1,41 +1,35 @@
-
 import java.net.*;
 import java.io.*;
 import java.util.*;
 
 public class ChatServer {
-    static final int PORT = 4000;
-    private byte[] buf = new byte[1000];
-    private DatagramPacket packet = new DatagramPacket(buf,buf.length);
-    private DatagramSocket sk;
+    private ServerSocket server;
+    private Socket socket;
+    private BufferedReader reader;
+    private PrintWriter writer;
  
     public ChatServer() {
         try {   
-            sk = new DatagramSocket(PORT);
-            System.out.println("Server started");
+            server = new ServerSocket(1300);
+            System.out.println("Server started, listening 1300");
             while (true) {
-                sk.receiveMessage(packet);
-                String receiveMessage = "received from "+packet.getAddress()+", "+packet.getPort() + new String(packet.getData(),0,packet.getLength());
-                System.out.println (receiveMessage);
-                String outMessage ="";
-                BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-                try{
-                    outMessage = stdin.readLine();
-                } catch (IOException ie) {
-                    System.out.println("IO error");
-                }
-                String outString = "Server say:"+ outMessage;
-                byte[] buf = outString.getBytes();
-                DatagramPacket out = new DatagramPacket(buf,buf.length,packet.getAddress(),packet.getPort());
-                sk.send(out);
+                socket = server.accept();  // get a socket from client
+                System.out.println("accepted new socket" + socket);
+                /* receive message from client*/
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));  // transfer socket to reader
+                String received = reader.readLine();  // get message in socket
+                System.out.println("received message is " + received);
+                /* send message to client */
+                writer = new PrintWriter(socket.getOutputStream(),true);
+                writer.println("hello");
+                reader.close();
+                writer.close();
             }
         } catch (SocketException e) {
             System.out.println("cannot open socket");
-            System.exit(1);
-        }catch(IOException e){
+        } catch (IOException e){
             System.out.println("Communication error");
             e.printStackTrace();
-            System.exit(1);
         }
     }
 

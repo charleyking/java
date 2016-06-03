@@ -18,6 +18,9 @@ public class ChatClientFrame extends JFrame {
 	//private JTextField textField_send;
 	private ObjectOutputStream out;
 	private boolean loginFlag = false;
+	private Socket socket;
+	private BufferedReader reader;
+	private PrintWriter writer;
 
 	public ChatClientFrame() {
 		super();
@@ -29,11 +32,6 @@ public class ChatClientFrame extends JFrame {
 		label_send.setText("Please input the chat content: ");
 		bottomPanel.add(label_send);
 		textField_send = new JTextField();
-		/*textField_send.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				send();
-			}
-		});*/
 		textField_send.setPreferredSize(new Dimension(180, 25));
 		bottomPanel.add(textField_send);
 		button_send = new JButton();
@@ -77,13 +75,14 @@ public class ChatClientFrame extends JFrame {
 					return;
 				}
 				String userName = textField_newUser.getText().trim(); // get user name
-				/*Vector v = new Vector(); // save the user data
-				//v.add("user: " + userName);// add login user
-				try {
+				Vector v = new Vector(); // save the user data
+				v.addElement("user: " + userName);// add login user
+				/*try {
 					out.writeObject(v); // send user data to server
 					out.flush();
 				} catch (IOException ex) {
 					ex.printStackTrace();
+					System.out.println("can't send login message to server");
 				}
 				*/
 				textField_newUser.setEnabled(false); // disable the user text field
@@ -95,14 +94,15 @@ public class ChatClientFrame extends JFrame {
 		button_exit = new JButton();
 		button_exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				/*String exitUser = textField_newUser.getText().trim();
+				String exitUser = textField_newUser.getText().trim();
 				Vector v = new Vector();
-				//v.add("exit: " + exitUser);
-				try {
+				v.addElement("exit: " + exitUser);
+				/*try {
 					out.writeObject(v);
 					out.flush();
 				} catch (IOException ex) {
 					ex.printStackTrace();
+					System.out.println("can't send exit message to server");
 				}*/
 				System.exit(0);
 			}
@@ -165,8 +165,10 @@ public class ChatClientFrame extends JFrame {
 
 	public void createClientSocket() {
 		try {
-			Socket socket = new Socket("localhost", 1982); // create a socket
+			socket = new Socket("localhost", 1982); // create a socket
 			out = new ObjectOutputStream(socket.getOutputStream()); // create an output stream
+			writer = new PrintWriter(socket.getOutputStream(),true);
+			writer.println("hello");
 			new ClientThread(socket).start(); // create a thread and start it
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -182,15 +184,17 @@ public class ChatClientFrame extends JFrame {
 		}
 		public void run() {
 			try {
-				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream())); // create an input stream
-				DefaultComboBoxModel model = (DefaultComboBoxModel) user_list.getModel(); // get list model
+				reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); // create an input stream
+				//DefaultComboBoxModel model = (DefaultComboBoxModel) user_list.getModel(); // get list model
 				while (true) {
-					String info = in.readLine().trim(); // read message
-					if (!info.startsWith("MSG:")) {
+					String info = reader.readLine().trim(); // read message
+					if (!info.startsWith("message:")) {
 						if (info.startsWith("exit: ")) { // start with exit message
-							model.removeElement(info.substring(3)); // remove user from list
+							System.out.println("info start with exit");
+							//model.removeElement(info.substring(3)); // remove user from list
 						} else { 
-							boolean itemFlag = false;
+							System.out.println("info no start with exit");
+							/*boolean itemFlag = false;
 							for (int i = 0; i < model.getSize(); i++) {
 								if (info.equals((String) model.getElementAt(i))) {
 									itemFlag = true;
@@ -200,7 +204,7 @@ public class ChatClientFrame extends JFrame {
 							if (!itemFlag) {
 								//model.addElement(info);
 								System.out.println("add login user to user list");
-							} 
+							} */
 						}
 					} else { // if received message, than show it at text area
 						DateFormat df = DateFormat.getDateInstance();
@@ -216,7 +220,7 @@ public class ChatClientFrame extends JFrame {
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("IOException in run method");
 			}
 		}
 	}
@@ -231,8 +235,8 @@ public class ChatClientFrame extends JFrame {
 		if (sendText.equals("")) {
 			return;
 		}
-		/*Vector<String> v = new Vector<String>();
-		java.util.List receiveUserNamesList = user_list.getSelectedValuesList(); // get select user 
+		Vector<String> v = new Vector<String>();
+		/*java.util.List receiveUserNamesList = user_list.getSelectedValuesList(); // get select user 
 		Object[] receiveUserNames = receiveUserNamesList.toArray();
 		if (receiveUserNames.length <= 0) {
 			return;
@@ -247,14 +251,13 @@ public class ChatClientFrame extends JFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}*/
-		System.out.println("I'm in send method");
 		DateFormat df = DateFormat.getDateInstance(); // get dataformat instance
 		String dateString = df.format(new Date()); // format to date
 		df = DateFormat.getTimeInstance(DateFormat.MEDIUM);
 		String timeString = df.format(new Date()); // format to time
-		String sendUser = textField_newUser.getText().trim();
-		String receiveInfo = textField_send.getText().trim();
-		textArea_info.append(" "+sendUser + " " +dateString+" "+timeString+"\n "+receiveInfo+"\n");
+		//String sendUser = textField_newUser.getText().trim();
+		//String receiveInfo = textField_send.getText().trim();
+		textArea_info.append(sendUserName + " " +dateString+" "+ timeString + "\n" + sendText + "\n");
 		textField_send.setText(null);
 		textArea_info.setSelectionStart(textArea_info.getText().length()-1);
 		textArea_info.setSelectionEnd(textArea_info.getText().length());
