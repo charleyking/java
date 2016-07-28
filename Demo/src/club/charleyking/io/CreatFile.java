@@ -2,14 +2,18 @@ package club.charleyking.io;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 
-public class Test {
+public class CreatFile {
 	public static void main(String[] args) throws IOException {
-		IOUtil.copyFile("D:\\charleyking.txt", "D:\\wangjiahao.txt");
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+				new FileOutputStream("D:\\charleyking.txt")));
+		bw.write("hello, charleyking, I love you!");
+		bw.flush();
+		bw.close();
 	}
 }
