@@ -51,8 +51,8 @@ public class BackupListener implements ActionListener {
 			try {
 				MysqlUtil.backup(mysqlPath, file.getAbsolutePath());
 				JOptionPane.showMessageDialog(bp, "backup successful" + file.getAbsolutePath());
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			} catch (Exception ex) {
+				ex.printStackTrace();
 				JOptionPane.showMessageDialog(bp, "backup failure");
 			}
 		}

@@ -1,12 +1,13 @@
-package club.charleyking.study;
+package club.charleyking.di;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class MainApp {
+// di examples
+public class Main {
 	public static void main(String[] args) {
 		ApplicationContext context = new ClassPathXmlApplicationContext("Beans.xml");
-		HelloWorld obj = (HelloWorld) context.getBean("helloWorld");
-		obj.getMessage();
+		TextEditor editor = (TextEditor) context.getBean("textEditor");
+		editor.check();
 	}
 }

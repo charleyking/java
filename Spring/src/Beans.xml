@@ -2,12 +2,18 @@
 
 <beans
 xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XML Schema-instance"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<bean id="helloWord" class="club.charleyking.study.HelloWord">
+	<bean id="helloWorld" class="club.charleyking.study.HelloWorld">
 		<property name="message" value="Hello World, I am Charles."/>
 	</bean>
-
+	
+	<bean id="textEditor" class="club.charleyking.di.TextEditor">
+		<constructor-arg ref="spellChecker"/>
+	</bean>
+	
+	<bean id="spellChecker" class="club.charleyking.di.SpellChecker"></bean>
 </beans>
+
