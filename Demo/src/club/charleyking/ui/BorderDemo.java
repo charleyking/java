@@ -1,3 +1,7 @@
+/**
+ * A demo that shows how swing Border works.
+ */
+
 package club.charleyking.ui;
 
 import java.awt.Color;

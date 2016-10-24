@@ -1,20 +1,26 @@
+/**
+ * Adjust button size on a panel.
+ */
+
 package club.charleyking.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
 
 public class ButtonSize extends JFrame {
 	JPanel panel = new JPanel();
 	JButton[] buttons = new JButton[10];
-	//JButton button = new JButton("hel");
 	JTextField textFiled = new JTextField();
 	JPanel panelGrid = new JPanel();
+	Border panelEdge = BorderFactory.createEmptyBorder(40, 10, 10, 10);
 	
 	public ButtonSize() {
 		//panel.setLayout(new BorderLayout());
@@ -25,9 +31,10 @@ public class ButtonSize extends JFrame {
 			buttons[i].setPreferredSize(new Dimension(100,40));
 			panel.add(buttons[i]);
 		}*/
+		panelGrid.setBorder(panelEdge);
 		for (int j=0; j<10; j++) {
 			buttons[j] = new JButton(String.valueOf(j));
-			buttons[j].setPreferredSize(new Dimension(40,40));
+			//buttons[j].setPreferredSize(new Dimension(20,20));
 			panelGrid.setLayout(new GridLayout(4,4,40,40));
 			panelGrid.add(buttons[j]);
 		}
