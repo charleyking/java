@@ -14,8 +14,14 @@ public class ButtonListener implements ActionListener {
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		String action = e.getActionCommand();
-		frame.textField.setText(action);
+	public void actionPerformed(ActionEvent e) {	
+		if (e.getActionCommand().equals("clear")) {
+			frame.textField.setText("");
+			frame.sb.setLength(0);
+		} else {
+			String action = e.getActionCommand();
+			frame.sb.append(action);
+			frame.textField.setText(frame.sb.toString());
+		}
 	}
 }

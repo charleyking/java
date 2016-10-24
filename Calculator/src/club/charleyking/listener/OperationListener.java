@@ -18,10 +18,8 @@ public class OperationListener implements ActionListener{
 		String action = e.getActionCommand();
 		String stringtest = frame.textField.getText();
 		frame.firstNumber = Integer.parseInt(stringtest);
-		//System.out.println(frame.firstNumber);
-		//frame.firstNumber = Integer.parseInt(frame.textField.getText());
 		frame.textField.setText(action);
 		frame.operation = operation;
-		//System.out.println("operation" + frame.operation);
+		frame.sb.setLength(0);		
 	}
 }

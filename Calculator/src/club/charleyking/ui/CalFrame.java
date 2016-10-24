@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,28 +22,31 @@ import club.charleyking.listener.ButtonListener;
 import club.charleyking.listener.OperationListener;
 
 public class CalFrame extends JFrame {
-	public String[] buttonName = {"0","1","2","3","4","5","6","7","8","9","+","-","*","/","="};
+	public String[] buttonName = {"0","1","2","3","4","5","6","7","8","9"};
 	public JButton[] buttons;
 	public JTextField textField;
 	public JPanel panel, textPanel;
 	public Border emptyEdge, blackline;
-	public JButton button, buttonAdd, buttonSub, buttonTime, buttonDivide, buttonEqual;
+	public JButton button, buttonAdd, buttonSub, buttonTime, buttonDivide, buttonEqual, buttonClear;
 	public ActionListener listener;
 	public int operation, firstNumber, secondNumber, result;
+	public StringBuilder sb;
 	
 	public CalFrame() {
+		sb = new StringBuilder();
 		panel = new JPanel();
 		//textPanel = new JPanel();
 		textField = new JTextField();
 		buttons = new JButton[10];
 		blackline = BorderFactory.createLineBorder(Color.black);
 		emptyEdge = BorderFactory.createEmptyBorder(40,10,10,10);
-		textField.setPreferredSize(new Dimension(200, 40));
+		textField.setPreferredSize(new Dimension(0, 60));
 		textField.setHorizontalAlignment(JTextField.RIGHT);
+		textField.setFont(new Font("Serif", Font.BOLD, 23));
 		textField.setEditable(false);
 		//textPanel.add(textField);
 		textField.setBorder(blackline);
-		panel.setLayout(new GridLayout(5,4,20,20));
+		panel.setLayout(new GridLayout(5,5,10,30));
 		panel.setBorder(emptyEdge);
 		for (int i=0; i<10; i++) {
 			addButton(panel, String.valueOf(i));
@@ -68,10 +72,11 @@ public class CalFrame extends JFrame {
 					result = firstNumber / secondNumber;
 				}
 				textField.setText(String.valueOf(result));
+				sb.setLength(0);
 			}
-		});
+		});	
 		panel.add(buttonEqual);
-		//this.setLayout(new BorderLayout());
+		addButton(panel, "clear");	
 		this.getContentPane().add(panel, BorderLayout.CENTER);
 		this.getContentPane().add(textField, BorderLayout.NORTH);
 		this.init();
