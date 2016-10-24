@@ -1,0 +1,9 @@
+package club.charleyking.algorithm;
+
+public class Sort {
+	public static void bubbleSort(int[] arr) {
+		for (int a: arr){
+			System.out.print(a);
+		}
+	}
+}

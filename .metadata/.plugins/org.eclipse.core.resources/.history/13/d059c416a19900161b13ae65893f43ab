@@ -1,0 +1,23 @@
+package club.charleyking.listener;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JOptionPane;
+
+import club.charleyking.ui.CalFrame;
+
+public class ButtonListener implements ActionListener {
+	CalFrame frame;
+	public ButtonListener() {
+		
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == frame.button) {
+			//frame.textField.setText("click 1");
+			JOptionPane.showMessageDialog(null, "shit what wrong");
+		}
+	}
+}

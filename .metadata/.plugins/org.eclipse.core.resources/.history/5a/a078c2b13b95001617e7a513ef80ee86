@@ -1,0 +1,11 @@
+package club.charleyking.string;
+
+public class StringTest {
+	public void reverse(String origin) {
+		System.out.println("fuck");
+	}
+	public static void main(String[] args) {
+		StringTest stringTest = new StringTest();
+		stringTest.reverse("ajf");
+	}
+}

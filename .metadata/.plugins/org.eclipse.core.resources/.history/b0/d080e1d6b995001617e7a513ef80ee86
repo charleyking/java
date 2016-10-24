@@ -1,0 +1,32 @@
+package club.charleyking.ui;
+
+import java.awt.Color;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+public class JLabelTest extends JFrame {
+	JPanel panel = new JPanel();
+	JLabel label = new JLabel("hello");
+	JButton button = new JButton("hei");
+	public JLabelTest() {
+		button.setSize(300, 300);
+		button.setBounds(0, 0, 300, 300);
+		int height = button.getHeight();
+		System.out.println(height);
+		panel.add(label);
+		panel.add(button);
+		this.add(panel);
+		this.setTitle("label test");
+		this.setSize(400, 400);
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setVisible(true);
+	}
+	
+	public static void main(String[] args) {
+		JLabelTest test = new JLabelTest();
+	}
+}

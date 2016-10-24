@@ -12,3 +12,4 @@ and some small projects and practices. Such as:
 - Eight Queeen Problem
 - Calendar Demo
 - Socket Chat
+- Calculator

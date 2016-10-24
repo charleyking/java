@@ -1,0 +1,9 @@
+package club.charleyking.ui;
+
+import javax.swing.JFrame;
+
+public class JPanelTest extends JFrame {
+	public JPanelTest() {
+		JPanel
+	}
+}

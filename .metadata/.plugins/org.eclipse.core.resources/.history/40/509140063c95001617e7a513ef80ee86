@@ -1,0 +1,15 @@
+package club.charleyking.string;
+
+import javax.swing.JOptionPane;
+
+public class StringReverse {
+	public String reverse(String str) {
+		return "hello";
+	}
+	
+	public static void main(String[] args) {
+		StringReverse stringReverse = new StringReverse();
+		String a = stringReverse.reverse("he");
+		JOptionPane.showMessageDialog(null, a);
+	}
+}
