@@ -1,7 +1,0 @@
-package club.charleyking.string;
-
-public class Wrong {
-	public static void main(String[] args) {
-		System.out.println("fucksl");
-	}
-}
