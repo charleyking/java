@@ -114,6 +114,11 @@ public class MainFrame extends JFrame {
 		// add button listener
 		newButton.addActionListener(listener);
 		openButton.addActionListener(listener);
+		saveButton.addActionListener(listener);
+		closeButton.addActionListener(listener);
+		quickButton.addActionListener(listener);
+		aboutmeButton.addActionListener(listener);
+		aboutButton.addActionListener(listener);
 		
 		// set tool bar
 		toolBar = new JToolBar();

@@ -1,17 +1,20 @@
 package club.charleyking.interview;
 
 public class StringChange {
+	public static String string = "hei";
 	public static void main(String[] args) {
-		Integer in = new Integer(2);
-		int n = 3;
-		change(n);
-		changeObj(in);
-		System.out.println(n);
-		System.out.println(in);
+		//String string = "1234";
+		int a = 2;
+		change(a);
+		change(string);
+		System.out.println(string + a);
 	}
 	
-	public static void change(int n) {
-		 n = 10;
+	public static void change(String string) {
+		 string = "hello";
+	}
+	public static void change(int a) {
+		a = 3;
 	}
 	public static void changeObj(Integer in) {
 		in = 12;
